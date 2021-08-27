@@ -51,7 +51,7 @@ class XmppClient(slixmpp.ClientXMPP):
     def on_session_start(self, evt):
         self.send_presence(pfrom=self._jid, ppriority=0, pstatus='away')
         self.get_roster(callback=self.on_roster_received)
-        self.plugin['xep_0045'].join_muc(room=CLAN_JID, nick="2016494874", pstatus='away')
+        self.plugin['xep_0045'].join_muc(room=CLAN_JID, nick=ACCOUNT_ID, pstatus='away')
 
     def on_failed_all_auth(self, *args, **kwargs):
         self.disconnect()
