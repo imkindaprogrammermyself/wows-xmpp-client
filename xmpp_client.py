@@ -16,13 +16,13 @@ PORT = 5222
 # Check World_of_Warships\profile\chat_pref_*.loc.xml for JID_SUFFIX and CLAN_JID *: MATCHING YOUR ACCOUNT ID.
 # wowsna.loc? wowseu.loc?
 JID_SUFFIX = "wowsasia.loc"
-CLAN_JID = os.getenv("CLAN_JID")
-ACCOUNT_ID = os.getenv("ACCOUNT_ID")
-ACCOUNT_TOKEN = 16849194  # (ALREADY USED) IT'S ONE TIME PASSWORD/TOKEN
+CLAN_JID = os.getenv("CLAN_JID", None)
+ACCOUNT_ID = os.getenv("ACCOUNT_ID", None)
+ACCOUNT_TOKEN = 2915438  # (ALREADY USED) IT'S ONE TIME PASSWORD/TOKEN
 
 try:
     assert CLAN_JID is not None
-    assert JID_SUFFIX is not None
+    assert ACCOUNT_ID is not None
 except AssertionError:
     print("Missing environment variables.")
     exit(-1)
