@@ -1,11 +1,12 @@
 import asyncio
 import json
 import random
-import string
 import os
+import string
 from aiohttp import ClientSession
 from Crypto.Hash import keccak
 from typing import Optional
+from random import randrange
 
 # GET THE DOMAIN FROM https://github.com/Mixaill/galaxy-integration-wargaming/blob/master/wgc/wgc_constants.py
 # WGCRealms, domain_wgnet, client_id
@@ -18,13 +19,11 @@ URL_TOKEN1 = f"{DOMAIN}/id/api/v2/account/credentials/create/token1/"
 
 HTTP_USER_AGENT = 'wgc/20.01.00.9514'
 CLIENT_ID = "Xe2oDM8Z6A4N70VZIV8RyVLHpvdtVPYNRIIYBklJ"  # CHECK COMMENT ON TOP
-# GET THE TRACIKING_ID inside the file C:\ProgramData\Wargaming.net\GameCenter\data\wgc_tracking_id.dat
-TRACKING_ID = os.getenv('TRACKING_ID', None)
+TRACKING_ID = f"{randrange(1, 10 ** 19):019}"
 USERNAME = os.getenv('WOWS_USERNAME', None)
 PASSWORD = os.getenv('WOWS_PASSWORD', None)
 
 try:
-    assert TRACKING_ID is not None
     assert USERNAME is not None
     assert PASSWORD is not None
 except AssertionError:
@@ -77,11 +76,14 @@ class XmppToken:
             "pow": power
         }
 
-        async with self._session.post(URL_OAUTH_TOKEN, data=post_data) as response:
-            if response.status == 202:
-                return await self._wait_login(response.headers['Location'])
-            elif response.read() == 200:
-                return json.loads(await response.content.read())['access_token']
+        try:
+            async with self._session.post(URL_OAUTH_TOKEN, data=post_data) as response:
+                if response.status == 202:
+                    return await self._wait_login(response.headers['Location'])
+                elif response.read() == 200:
+                    return json.loads(await response.content.read())['access_token']
+        except Exception:
+            return ""
 
     async def _wait_login(self, location: str) -> str:
         try:
@@ -94,15 +96,18 @@ class XmppToken:
             return ""
 
     async def _acquire_token1(self, login_token: str) -> int:
-        post_data = {
-            'requested_for': 'xmppcs',
-            'access_token': login_token
-        }
-        async with self._session.post(URL_TOKEN1, data=post_data) as response:
-            if response.status == 202:
-                return await self._wait_token1(response.headers['Location'])
-            elif response.status == 200:
-                return json.loads(await response.content.read())['token']
+        try:
+            post_data = {
+                'requested_for': 'xmppcs',
+                'access_token': login_token
+            }
+            async with self._session.post(URL_TOKEN1, data=post_data) as response:
+                if response.status == 202:
+                    return await self._wait_token1(response.headers['Location'])
+                elif response.status == 200:
+                    return json.loads(await response.content.read())['token']
+        except Exception:
+            return -1
 
     async def _wait_token1(self, location: str) -> int:
         try:
@@ -118,10 +123,18 @@ class XmppToken:
         self._session = ClientSession()
         self._session.headers.update({"User-Agent": HTTP_USER_AGENT})
 
-        if challenge := await self._get_challenge():
-            power = await self._calculate_challenge(challenge['pow'])
-            token = await self._login(power)
-            print(await self._acquire_token1(token))
+        try:
+
+            if challenge := await self._get_challenge():
+                power = await self._calculate_challenge(challenge['pow'])
+                token = await self._login(power)
+                assert token != ""
+                token1 = await self._acquire_token1(token)
+                assert token1 != -1
+                print(token1)
+        except Exception:
+            print("An error occurred.")
+
         await self._session.close()
 
     def start(self):

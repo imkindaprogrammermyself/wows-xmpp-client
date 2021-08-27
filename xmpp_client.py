@@ -18,7 +18,7 @@ PORT = 5222
 JID_SUFFIX = "wowsasia.loc"
 CLAN_JID = os.getenv("CLAN_JID", None)
 ACCOUNT_ID = os.getenv("ACCOUNT_ID", None)
-ACCOUNT_TOKEN = 2915438  # (ALREADY USED) IT'S ONE TIME PASSWORD/TOKEN
+ACCOUNT_TOKEN = 50193486  # (ALREADY USED) IT'S ONE TIME PASSWORD/TOKEN
 
 try:
     assert CLAN_JID is not None
@@ -33,15 +33,20 @@ class XmppClient(slixmpp.ClientXMPP):
         self._jid = f"{account_id}@{JID_SUFFIX}"
         super().__init__(self._jid, str(password), sasl_mech='PLAIN', **kwargs)
         self['feature_mechanisms'].unencrypted_plain = True
+        self.register_plugin('xep_0030')
         self.register_plugin('xep_0199')  # PING PLUGIN, KEEPS THE CLIENT CONNECTED.
         self.register_plugin('xep_0045')  # GROUP PLUGIN, SO YOU CAN JOIN ROOMS.
         self.use_aiodns = False
         self.add_event_handler("session_start", self.on_session_start)
         self.add_event_handler("message", self.message)
         self.add_event_handler("failed_all_auth", self.on_failed_all_auth)
+        self.add_event_handler("disconnected", self.disconnected)
 
     def connect(self, **kwargs):
         return super().connect((HOST, PORT))
+
+    def disconnected(self, *args, **kwargs):
+        asyncio.get_event_loop().stop()
 
     def on_session_start(self, evt):
         self.send_presence(pfrom=self._jid, ppriority=0, pstatus='away')
