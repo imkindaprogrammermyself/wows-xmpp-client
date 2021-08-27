@@ -20,6 +20,13 @@ CLAN_JID = os.getenv("CLAN_JID")
 ACCOUNT_ID = os.getenv("ACCOUNT_ID")
 ACCOUNT_TOKEN = 16849194  # (ALREADY USED) IT'S ONE TIME PASSWORD/TOKEN
 
+try:
+    assert CLAN_JID is not None
+    assert JID_SUFFIX is not None
+except AssertionError:
+    print("Missing environment variables.")
+    exit(-1)
+
 
 class XmppClient(slixmpp.ClientXMPP):
     def __init__(self, account_id, password, **kwargs):

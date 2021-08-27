@@ -18,9 +18,18 @@ URL_TOKEN1 = f"{DOMAIN}/id/api/v2/account/credentials/create/token1/"
 
 HTTP_USER_AGENT = 'wgc/20.01.00.9514'
 CLIENT_ID = "Xe2oDM8Z6A4N70VZIV8RyVLHpvdtVPYNRIIYBklJ"  # CHECK COMMENT ON TOP
-TRACKING_ID = os.getenv('TRACKING_ID')
-USERNAME = os.getenv('WOWS_USERNAME')
-PASSWORD = os.getenv('WOWS_PASSWORD')
+# GET THE TRACIKING_ID inside the file C:\ProgramData\Wargaming.net\GameCenter\data\wgc_tracking_id.dat
+TRACKING_ID = os.getenv('TRACKING_ID', None)
+USERNAME = os.getenv('WOWS_USERNAME', None)
+PASSWORD = os.getenv('WOWS_PASSWORD', None)
+
+try:
+    assert TRACKING_ID is not None
+    assert USERNAME is not None
+    assert PASSWORD is not None
+except AssertionError:
+    print("Missing environment variables.")
+    exit(-1)
 
 
 class XmppToken:
