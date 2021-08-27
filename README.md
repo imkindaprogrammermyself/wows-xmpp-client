@@ -11,4 +11,5 @@
  2. Run the script.
 
 **Testing it**
+
 Have someone message you in game. If everything is done right the script `xmpp_client.py`while running, should echo the message back.
