@@ -12,4 +12,4 @@
 
 **Testing it**
 
-If someone messaged you in game, the script `xmpp_client.py`, while running, should echo the message back.
+If someone messages you in game, the script `xmpp_client.py`, while running, should echo the message back.
